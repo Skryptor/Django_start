@@ -10,5 +10,6 @@ urlpatterns = [
     path('recipe/<str:str_>', recipe),
     path('create_phone/', create_phone),
     path('catalog/', get_phone),
+    path('admin/', admin.site.urls),
 
 ]

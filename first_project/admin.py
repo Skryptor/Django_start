@@ -4,4 +4,4 @@ from .models import Phone
 
 @admin.register(Phone)
 class PhoneAdmin(admin.ModelAdmin):
-    pass
+    list_filter = ['name','price',]
