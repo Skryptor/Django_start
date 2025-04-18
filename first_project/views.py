@@ -26,26 +26,26 @@ DATA = {
 }
 def Home_page(request):
     return HttpResponse("<pre>hellow, this webpage have url"
-                        "\n/current_time/ "
-                        "\n/workdir/ "
-                        "\n/recipe/ "
+                        #"\n/current_time/ "
+                        #"\n/workdir/ "
+                        #"\n/recipe/ "
                         "\n/create_phone/ "
                         "\n/catalog/ <pre>")
 
-def current_time(request):
-    return HttpResponse(f'{datetime.datetime.now().time()}')
-
-def workdir(request):
-    files = os.listdir('.')
-    return HttpResponse("<br>".join(files))
-
-def recipe(request, str_):
-    dish = []
-    sum_ = int(request.GET.get('sum_', 1))
-    for name, values in DATA[str_].items():
-        dishes = f" {name}: {values * sum_} "
-        dish.append(dishes)
-    return HttpResponse("<br>".join(dish))
+# def current_time(request):
+#     return HttpResponse(f'{datetime.datetime.now().time()}')
+#
+# def workdir(request):
+#     files = os.listdir('.')
+#     return HttpResponse("<br>".join(files))
+#
+# def recipe(request, str_):
+#     dish = []
+#     sum_ = int(request.GET.get('sum_', 1))
+#     for name, values in DATA[str_].items():
+#         dishes = f" {name}: {values * sum_} "
+#         dish.append(dishes)
+#     return HttpResponse("<br>".join(dish))
 
 def create_phone(request):
 
@@ -61,11 +61,28 @@ def create_phone(request):
 
     return HttpResponse('ready')
 def get_phone(request):
-    user_get_phone = request.GET.get('name',)
+    user_get_phone = request.GET.get('name')
+    sort_param = request.GET.get('sort')
+
     if user_get_phone:
         phone_object = Phone.objects.filter(name=user_get_phone)
     else:
         phone_object = Phone.objects.all()
+
+    if sort_param == 'name':
+        phone_object = phone_object.order_by('name')
+    elif sort_param == 'cheap':
+        phone_object = phone_object.order_by('price')
+    elif sort_param == 'expensive':
+        phone_object = phone_object.order_by('-price')
+
+    sort_buttons = """
+            <div style="margin-bottom: 20px;">
+                <a href="/catalog/?sort=name" style="margin-right: 10px;"> Название</a>
+                <a href="/catalog/?sort=cheap" style="margin-right: 10px;">⬇ Сначала дешевые</a>
+                <a href="/catalog/?sort=expensive" style="margin-right: 10px;">⬆ Сначала дорогие</a>
+            </div>
+        """
     phones = [
         f'''
         <div style="border: 1px purple; padding: 10px; margin=bottom: 20px;">
@@ -76,4 +93,4 @@ def get_phone(request):
             <strong> LTE:</strong>{'✅' if i.lte_exists else '❌'}
         </div>
         ''' for i in phone_object]
-    return HttpResponse("".join(phones))
+    return HttpResponse(sort_buttons + "".join(phones))
